@@ -30,7 +30,7 @@ class AlgoliaService extends BaseApplicationComponent
      *
      * @var array
      */
-    protected $indicies;
+    protected $mappings;
 
     /**
      * Returns an Algolia client instance.
@@ -58,7 +58,7 @@ class AlgoliaService extends BaseApplicationComponent
      */
     public function getPrefixedIndexName($indexName)
     {
-        return craft()->config->get('indexNamePrefix', 'algolia').$this->indexName;
+        return craft()->config->get('indexNamePrefix', 'algolia').$indexName;
     }
 
     /**
@@ -66,36 +66,17 @@ class AlgoliaService extends BaseApplicationComponent
      *
      * @return array
      */
-    public function getIndicies()
+    public function getMappings()
     {
-        if (is_null($this->indicies)) {
-            $this->indicies = [];
-
-            $indiciesConfig = craft()->config->get('indicies', 'algolia');
-
-            foreach ($indiciesConfig as $indexName => $indexConfig) {
-                $indexConfig['indexName'] = $indexName;
-                $this->indicies[$indexName] = new Algolia_IndexModel($indexConfig);
+        if (is_null($this->mappings)) {
+            $this->mappings = [];
+            $mappingsConfig = craft()->config->get('mappings', 'algolia');
+            foreach ($mappingsConfig as $mappingConfig) {
+                $this->mappings[] = new Algolia_IndexModel($mappingConfig);
             }
         }
 
-        return $this->indicies;
-    }
-
-    /**
-     * Returns an Algolia_IndexModel instance by name.
-     *
-     * @param $indexName string The unprefixed index name
-     *
-     * @return Algolia_IndexModel
-     */
-    public function getIndexByName($indexName)
-    {
-        $indicies = $this->getIndicies();
-
-        if (isset($indicies[$indexName])) {
-            return $indicies[$indicies];
-        }
+        return $this->mappings;
     }
 
     /**
@@ -105,8 +86,20 @@ class AlgoliaService extends BaseApplicationComponent
      */
     public function indexElement(BaseElementModel $element)
     {
-        foreach ($this->getIndicies() as $indexName => $index) {
-            $index->indexElement($element);
+        foreach ($this->getMappings() as $algoliaIndexModel) {
+            $algoliaIndexModel->indexElement($element);
+        }
+    }
+
+    /**
+     * Passes the supplied element to each configured index.
+     *
+     * @param $element BaseElementModel
+     */
+    public function deindexElement(BaseElementModel $element)
+    {
+        foreach ($this->getMappings() as $algoliaIndexModel) {
+            $algoliaIndexModel->deindexElement($element);
         }
     }
 }

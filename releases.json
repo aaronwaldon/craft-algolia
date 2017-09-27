@@ -1,5 +1,13 @@
 [
     {
+        "version": "0.2.0",
+        "downloadUrl": "https://github.com/joshuabaker/craft-algolia/archive/master.zip",
+        "date": "2016-12-12T14:42:49.696Z",
+        "notes": [
+            "Updated the config to allow more than one element type to map to the same index and moved the event listeners to the config."
+        ]
+    },
+    {
         "version": "0.1.0",
         "downloadUrl": "https://github.com/joshuabaker/craft-algolia/archive/master.zip",
         "date": "2016-12-12T14:42:49.696Z",

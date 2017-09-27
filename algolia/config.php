@@ -10,10 +10,10 @@ return [
     'indexNamePrefix' => CRAFT_ENVIRONMENT.'_',
 
     /**
-     * Configure indicies.
+     * Configure mappings.
      *
      * @var array
      */
-    'indices' => [],
+    'mappings' => [],
 
 ];

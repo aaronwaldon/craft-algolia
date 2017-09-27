@@ -17,15 +17,23 @@ namespace Craft;
 class AlgoliaPlugin extends BasePlugin
 {
     /**
-     * @return mixed
+     * Plugin init method.
      */
     public function init()
     {
         require_once __DIR__.'/vendor/autoload.php';
 
-        craft()->on('elements.onSaveElement', function (Event $event) {
-            craft()->algolia->indexElement($event->params['element']);
-        });
+        $init = craft()->config->get('init', 'algolia');
+        if (!empty($init) && is_callable($init))
+        {
+            call_user_func($init);
+        }
+        else
+        {
+            craft()->on('elements.onSaveElement', function (Event $event) {
+                craft()->algolia->indexElement($event->params['element']);
+            });
+        }
     }
 
     /**
@@ -65,7 +73,7 @@ class AlgoliaPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.1.0';
+        return '0.2.0';
     }
 
     /**
@@ -73,7 +81,7 @@ class AlgoliaPlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.1.0';
+        return '0.2.0';
     }
 
     /**

@@ -88,6 +88,20 @@ class Algolia_IndexModel extends BaseModel
     }
 
     /**
+     * Removes the supplied element from the index.
+     *
+     * @param $element BaseElementModel
+     *
+     * @return mixed
+     */
+    public function deindexElement(BaseElementModel $element)
+    {
+        if ($this->canIndexElement($element)) {
+            return $this->getAlgoliaIndex()->deleteObject($element->id);
+        }
+    }
+
+    /**
      * Returns the index name with the configured prefix.
      *
      * @return string
