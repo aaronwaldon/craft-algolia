@@ -149,7 +149,7 @@ class Algolia_IndexModel extends BaseModel
     {
         return [
             'indexName' => AttributeType::String,
-            'elementCriterias' => [
+            'elementCriteria' => [
                 AttributeType::Mixed,
                 'default' => null
             ],

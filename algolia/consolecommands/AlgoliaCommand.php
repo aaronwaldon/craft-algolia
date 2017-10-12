@@ -3,19 +3,28 @@ namespace Craft;
 
 class AlgoliaCommand extends BaseCommand
 {
-    public function actionImport($indice = -1, $page = 0)
+    /**
+     * Imports all mapping indexes.
+     *
+     * Command: php {script_name_here} algolia import
+     *
+     * @param int $index
+     * @param int $page
+     * @return mixed
+     */
+    public function actionImport($index = -1, $page = 0)
     {
-
-        if($indice < 0){
+        //if this is the first time being called, kick off separate commands for each of the mappings
+        if($index < 0){
 
             $this->writeLog('Starting Algolia importation.');
 
-            foreach (craft()->algolia->getIndicies() as $indexName => $index) {
+            foreach (craft()->algolia->getMappings() as $algoliaIndexModel) {
 
-                $this->writeLog('Importing indice '. $indexName);
-                $command = strtr('php {script} algolia import --indice="{indice}" --page="{page}"', [
+                $this->writeLog('Importing index '. $algoliaIndexModel->indexName);
+                $command = strtr('php {script} algolia import --index="{index}" --page="{page}"', [
                     '{script}' => $this->getCommandRunner()->getScriptName(),
-                    '{indice}' => ++$indice,
+                    '{index}' => ++$index,
                     '{page}' => 0
                 ]);
 
@@ -27,15 +36,16 @@ class AlgoliaCommand extends BaseCommand
             return craft()->end();
         }
 
-        $pageInfo = $this->paginateImportation($indice);
+        //break up the elements into batches and import each batch
+        $pageInfo = $this->paginateImportation($index);
 
         foreach($pageInfo['pages'] as $page)
         {
-            $this->writeLog('Importing page ' .( $page +1 ). '/'.$pageInfo['totalPages']. ' of index '.$indice );
+            $this->writeLog('Importing page ' .( $page +1 ). '/'.$pageInfo['totalPages']. ' of index '.$index );
 
-            $command = strtr('php {script} algolia importIndicePage --indice="{indice}" --page="{page}"', [
+            $command = strtr('php {script} algolia importIndexPage --index="{index}" --page="{page}"', [
                 '{script}' => $this->getCommandRunner()->getScriptName(),
-                '{indice}' => $indice,
+                '{index}' => $index,
                 '{page}' => $page
             ]);
 
@@ -43,22 +53,34 @@ class AlgoliaCommand extends BaseCommand
         }
 
         craft()->end();
-
     }
 
-    public function actionImportIndicePage($indice, $page)
+    /**
+     * Calls the import method of the Algolia service to index
+     * a batch of elements for the specified mapping index.
+     *
+     * @param $index
+     * @param $page
+     */
+    public function actionImportIndexPage($index, $page)
     {
-        craft()->algolia->import($indice, $page);
+        craft()->algolia->import($index, $page);
     }
 
+    /**
+     * Paginates the import of a mapping index.
+     *
+     * @param $index
+     * @return array
+     */
     private function paginateImportation($index)
     {
         $limit = craft()->config->get('limit', 'algolia');
 
-        $currentIndex = array_slice(craft()->algolia->getIndicies(), $index, 1);
+        $currentIndex = array_slice(craft()->algolia->getMappings(), $index, 1);
         $currentIndex = array_shift($currentIndex);
 
-        $criteria = craft()->elements->getCriteria(ucfirst($currentIndex->elementType), $currentIndex->elementCriterias);
+        $criteria = craft()->elements->getCriteria(ucfirst($currentIndex->elementType), $currentIndex->elementCriteria);
         $criteria->status = null;
         $criteria->limit = null;
         $total = $criteria->total();
@@ -71,16 +93,32 @@ class AlgoliaCommand extends BaseCommand
 
     }
 
+    /**
+     * Outputs a string to the console.
+     *
+     * @param $str
+     */
     private function write($str)
     {
         echo $str;
     }
 
+    /**
+     * Outputs a line to the console.
+     *
+     * @param string $str
+     */
     private function writeLn($str = '')
     {
         echo (is_array($str) ? implode(PHP_EOL, $str) : $str) . PHP_EOL;
     }
 
+    /**
+     * Logs a message to the console.
+     *
+     * @param $str
+     * @param bool $ln
+     */
     private function writeLog($str, $ln = true)
     {
         $now = new DateTime('now');
@@ -94,5 +132,4 @@ class AlgoliaCommand extends BaseCommand
 
         $ln ? $this->writeLn($log) : $this->write($log);
     }
-
 }

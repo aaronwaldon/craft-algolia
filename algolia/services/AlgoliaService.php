@@ -110,8 +110,8 @@ class AlgoliaService extends BaseApplicationComponent
      */
     public function indexElements($elements)
     {
-        foreach ($this->getIndicies() as $indexName => $index) {
-            $index->indexElements($elements);
+        foreach ($this->getMappings() as $algoliaIndexModel) {
+            $algoliaIndexModel->indexElements($elements);
         }
     }
 
@@ -124,10 +124,10 @@ class AlgoliaService extends BaseApplicationComponent
     {
         $limit = craft()->config->get('limit', 'algolia');
 
-        $currentIndex = array_slice(craft()->algolia->getIndicies(), $index, 1);
+        $currentIndex = array_slice(craft()->algolia->getMappings(), $index, 1);
         $currentIndex = array_shift($currentIndex);
 
-        $criteria = craft()->elements->getCriteria(ucfirst($currentIndex->elementType), $currentIndex->elementCriterias);
+        $criteria = craft()->elements->getCriteria(ucfirst($currentIndex->elementType), $currentIndex->elementCriteria);
         $criteria->limit = $limit;
         $criteria->offset = $page * $limit;
 
