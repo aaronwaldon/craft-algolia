@@ -16,4 +16,11 @@ return [
      */
     'mappings' => [],
 
+    /**
+     * Batch limit
+     *
+     * @var integer
+     */
+    'limit' => 100,
+
 ];

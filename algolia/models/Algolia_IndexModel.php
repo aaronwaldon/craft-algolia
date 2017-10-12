@@ -99,6 +99,37 @@ class Algolia_IndexModel extends BaseModel
         if ($this->canIndexElement($element)) {
             return $this->getAlgoliaIndex()->deleteObject($element->id);
         }
+
+        return true;
+    }
+
+    /**
+     * Adds or removes the supplied elements from the index.
+     *
+     * @param $elements array
+     *
+     * @return mixed
+     */
+    public function indexElements($elements)
+    {
+        $toIndex = [];
+        $toDelete = [];
+
+        array_map(function($element) use (&$toIndex, &$toDelete){
+            if ($this->canIndexElement($element)) {
+                if ($element->enabled) {
+                    $toIndex[] = $this->transformElement($element);
+                } else {
+                    $toDelete[] = $this->transformElement($element);
+                }
+            }
+
+        }, $elements);
+
+        $this->getAlgoliaIndex()->addObjects($toIndex);
+        $this->getAlgoliaIndex()->deleteObjects($toDelete);
+
+        return true;
     }
 
     /**
@@ -118,6 +149,10 @@ class Algolia_IndexModel extends BaseModel
     {
         return [
             'indexName' => AttributeType::String,
+            'elementCriteria' => [
+                AttributeType::Mixed,
+                'default' => null
+            ],
             'elementType' => [
                 AttributeType::String,
                 'default' => ElementType::Entry,
