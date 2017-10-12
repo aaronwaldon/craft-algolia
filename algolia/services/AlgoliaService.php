@@ -102,4 +102,36 @@ class AlgoliaService extends BaseApplicationComponent
             $algoliaIndexModel->deindexElement($element);
         }
     }
+
+    /**
+     * Passes the supplied elements to each configured index.
+     *
+     * @param $element array
+     */
+    public function indexElements($elements)
+    {
+        foreach ($this->getIndicies() as $indexName => $index) {
+            $index->indexElements($elements);
+        }
+    }
+
+    /**
+     * Imports a paginated batch
+     *
+     * @param $page integer
+     */
+    public function import($index, $page = 0) 
+    {
+        $limit = craft()->config->get('limit', 'algolia');
+
+        $currentIndex = array_slice(craft()->algolia->getIndicies(), $index, 1);
+        $currentIndex = array_shift($currentIndex);
+
+        $criteria = craft()->elements->getCriteria(ucfirst($currentIndex->elementType), $currentIndex->elementCriterias);
+        $criteria->limit = $limit;
+        $criteria->offset = $page * $limit;
+
+        return $this->indexElements($criteria->find());
+        
+    }
 }
