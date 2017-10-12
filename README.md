@@ -135,6 +135,53 @@ That prefix setting can be overridden in your config. The following would remove
 ```
 
 
+### Limit Element Criteria for Command Imports
+
+This can be used to specify which element criteria to use for each mapping when running batch import commands. If left blank, the plugin will try each of the elements for the specified element type.
+
+```php
+ ...
+    'mappings' => [
+        [
+            'indexName' => 'newsPosts',
+            'elementType' => 'entry',
+            'elementCriteria' => [
+                'section' => ['news']
+            ],
+            ...
+        ],
+    ],
+    ...
+```
+
+
+
+## Commands
+
+There are a few helpful commands. If you don't already have a command script set up, you can place the included `yiic` file in the same directory as your craft directory. You can then run the commands by navigating to the location of the yiic file in a terminal and running `php yiic algolia` followed by the command name and options, if any.
+
+
+### Clear An Index Command
+
+Clears and index by name. This will remove all entries from the specified index.
+
+`php yiic algolia clearIndex --name=some_index_name_here`
+
+
+### Batch Import A Mapping
+
+This will import the elements for the specified index.
+
+`php yiic algolia import --name=some_index_name_here`
+
+
+### Batch Import All
+
+This will import all elements for all of the indexes.
+
+`php yiic algolia importAll`
+
+
 
 ***
 
@@ -142,4 +189,6 @@ That prefix setting can be overridden in your config. The following would remove
 
 ## Contributions
 
-- [Aaron Waldon](https://github.com/aaronwaldon) / @aaronwaldon - Reworked the logic to allow multiple element types to map to an index and to be able to override the init method from the config. Also added a method to deindex elements.
+- [Aaron Waldon](https://github.com/aaronwaldon) / @aaronwaldon - Reworked the logic to allow multiple element types to map to an index and to be able to override the init method from the config. Also added a method to deindex elements and a command to clear an index.
+
+- [Philippe Pérusse](https://github.com/philperusse) / @philperusse - Added the option to mass index elements with a command.
