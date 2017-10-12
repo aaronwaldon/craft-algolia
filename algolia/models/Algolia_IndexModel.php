@@ -40,7 +40,7 @@ class Algolia_IndexModel extends BaseModel
     }
 
     /**
-     * Detemines if the supplied element can be indexed in this index.
+     * Determines if the supplied element can be indexed in this index.
      *
      * @param $element BaseElementModel
      *
@@ -123,11 +123,16 @@ class Algolia_IndexModel extends BaseModel
                     $toDelete[] = $this->transformElement($element);
                 }
             }
-
         }, $elements);
 
-        $this->getAlgoliaIndex()->addObjects($toIndex);
-        $this->getAlgoliaIndex()->deleteObjects($toDelete);
+        if (count($toIndex))
+        {
+            $this->getAlgoliaIndex()->addObjects($toIndex);
+        }
+        if (count($toDelete))
+        {
+            $this->getAlgoliaIndex()->deleteObjects($toDelete);
+        }
 
         return true;
     }

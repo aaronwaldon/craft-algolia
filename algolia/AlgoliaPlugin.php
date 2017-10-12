@@ -73,7 +73,7 @@ class AlgoliaPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '0.2.0';
+        return '0.3.0';
     }
 
     /**
@@ -81,7 +81,7 @@ class AlgoliaPlugin extends BasePlugin
      */
     public function getSchemaVersion()
     {
-        return '0.2.0';
+        return '0.3.0';
     }
 
     /**

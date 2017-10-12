@@ -12,7 +12,7 @@ namespace Craft;
 class AlgoliaCommand extends BaseCommand
 {
     /**
-     * Command: php {script_name_here} algolia clearindex --name=some_index_name_here
+     * Command: php {script_name_here} algolia clearIndex --name=some_index_name_here
      */
     public function actionClearIndex($name)
     {
@@ -21,15 +21,15 @@ class AlgoliaCommand extends BaseCommand
     }
 
     /**
-     * Imports all mapping indexes.
+     * Batch imports all mapping indexes.
      *
-     * Command: php {script_name_here} algolia import
+     * Command: php {script_name_here} algolia importAll
      *
      * @param int $index
      * @param int $page
      * @return mixed
      */
-    public function actionImport($index = -1, $page = 0)
+    public function actionImportAll($index = -1, $page = 0)
     {
         //if this is the first time being called, kick off separate commands for each of the mappings
         if($index < 0){
@@ -39,7 +39,7 @@ class AlgoliaCommand extends BaseCommand
             foreach (craft()->algolia->getMappings() as $algoliaIndexModel) {
 
                 $this->writeLog('Importing index '. $algoliaIndexModel->indexName);
-                $command = strtr('php {script} algolia import --index="{index}" --page="{page}"', [
+                $command = strtr('php {script} algolia importAll --index="{index}" --page="{page}"', [
                     '{script}' => $this->getCommandRunner()->getScriptName(),
                     '{index}' => ++$index,
                     '{page}' => 0
@@ -70,6 +70,28 @@ class AlgoliaCommand extends BaseCommand
         }
 
         craft()->end();
+    }
+
+	/**
+	 * Batch imports a single index by name.
+	 *
+	 * Command: php {script_name_here} algolia import --name=some_index_name_here
+	 */
+    public function actionImport($name)
+    {
+	    foreach (craft()->algolia->getMappings() as $index => $algoliaIndexModel) {
+	    	if ($algoliaIndexModel->indexName == $name)
+		    {
+			    $this->writeLog('Importing index '. $algoliaIndexModel->indexName);
+			    $command = strtr('php {script} algolia importAll --index="{index}" --page="{page}"', [
+				    '{script}' => $this->getCommandRunner()->getScriptName(),
+				    '{index}' => $index,
+				    '{page}' => 0
+			    ]);
+
+			    passthru($command);
+		    }
+	    }
     }
 
     /**
@@ -106,7 +128,7 @@ class AlgoliaCommand extends BaseCommand
 
         $totalPages = ceil( $total / $limit );
 
-        return ['totalPages' => $totalPages, 'pages'=>range(0, $totalPages)];
+        return ['totalPages' => $totalPages, 'pages'=>($total < $limit) ? [0] : range(0, $totalPages)];
 
     }
 
